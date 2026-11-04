@@ -1,0 +1,8 @@
+Transaction ID,Note,Date,Value,Currency Code,Category,Exchange Rate,Statement,Transaction Type,Account Name,Account Type,Category Group,Affect Cash Flow
+i-doGaa_DeUC,Bus/MRT,2021-11-27T00:00:00.000000+08:00,1.84,SGD,Transportation,1.0,Jan-22,Expense,OCBC 365,Credit Card,General,True
+i-0lm0e9b2ae,Bus/MRT,2021-12-01T00:00:00.000000+08:00,2.09,SGD,Transportation,1.0,Jan-22,Expense,OCBC 365,Credit Card,General,True
+i-rQaYToa59Z,Lazada - shopping,2021-12-05T00:00:00.000000+08:00,217.07,SGD,General Shopping,1.0,Jan-22,Expense,OCBC 365,Credit Card,Shopping,True
+i-joHv_Duc1h,Shopee - shopping,2021-12-08T00:00:00.000000+08:00,21.39,SGD,General Shopping,1.0,Jan-22,Expense,OCBC 365,Credit Card,Shopping,True
+i-iILZavkjs6,Bus/MRT,2021-12-15T00:00:00.000000+08:00,0.92,SGD,Transportation,1.0,Jan-22,Expense,OCBC 365,Credit Card,General,True
+i-iivYacEIC-,Bus/MRT,2021-12-18T00:00:00.000000+08:00,1.02,SGD,Transportation,1.0,Jan-22,Expense,OCBC 365,Credit Card,General,True
+i-lQJ7exBK59,KFC,2021-12-18T00:00:00.000000+08:00,20.0,SGD,Food & Drinks,1.0,Jan-22,Expense,OCBC 365,Credit Card,General,True
