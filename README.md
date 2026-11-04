@@ -109,7 +109,71 @@ host names listed in `server.allowedHosts` in `vite.config.ts` (currently
 
 ---
 
-## First run: getting your data in
+## First run: setting up
+
+A new install starts empty, with no budgets, categories or accounts. Set these
+up in **Settings** (in the sidebar, available before any data is loaded)
+**before you import transactions**, in this order. Each step depends on the one
+before it, and the import reads your categories and accounts as it runs. Click
+**Save Changes** on each tab when you are done.
+
+### 1. Budgets (Settings → Budgets)
+
+1. Enter your **monthly salary**.
+2. Add your **monthly budgets** (for example Bills, Daily, Hobby, Savings). Give
+   each one its **% of salary**; the dollar amount is worked out from it.
+3. Tick **Savings** on the budget that collects what is left over. It absorbs
+   overspending from the others last.
+4. Tick **Covers Overspend** on budgets whose leftover should be used up
+   *before* savings when another budget goes over (for example Daily and Hobby).
+5. Optionally add **yearly budgets** for larger, less frequent spending.
+
+### 2. Categories (Settings → Category Rules)
+
+Add one rule per category, using **Add Rule**. The **label must match the
+`Category` column of your CSV exactly**. For each one, set:
+
+| Field | Meaning |
+| :--- | :--- |
+| Transaction Type | `Income` or `Expense` |
+| Category Group | Your own grouping, e.g. `General`. Anything in the group named `Travel` counts toward the Travel Budget instead of the monthly budgets |
+| Affect Cash Flow | Off for money moving between your own accounts (transfers, card bill payments), so it isn't counted as spending or income |
+| Budget | Which monthly budget this category counts toward |
+
+When you import, each row's type, group and cash-flow flag come from the
+matching rule, not from the CSV. Rows whose category has no rule keep the CSV's
+values but count toward no budget. You can't add an entry in the app with a
+category that has no rule.
+
+For **Add Credit Card Payment** to work, also add these two rules:
+
+| Label | Type | Affect Cash Flow |
+| :--- | :--- | :--- |
+| `Credit Card Balance` | Income | off |
+| `Credit Card Payment` | Expense | off |
+
+### 3. Accounts (Settings → Account)
+
+Add each account with **Add Account**, using the **same name as the CSV's
+`Account Name` column**, and choose its type: `Credit Card`, `Savings`,
+`Checking`, `Cash` or `Investment`. Saved types take priority over the CSV's.
+Card payments need at least one `Savings` and one `Credit Card` account.
+
+If you leave this list empty, the import creates the accounts for you from the
+CSV. Check their types afterwards. If you add some by hand, add them all,
+because the import only creates accounts when the list is empty.
+
+### 4. The rest (optional)
+
+- **Statement Management:** statement periods are picked up from the import;
+  add new ones here as `Mmm-YY` (e.g. `Nov-26`).
+- **Quick Add Buttons:** shortcuts for the phone's **+** button, each with a
+  note, category and default amount.
+- **Scheduled:** recurring payments that show up as due on the phone.
+
+---
+
+## Importing your transactions
 
 When the database has no transactions, the app opens on an **Import
 Transactions** screen. Upload a CSV with these columns (see
@@ -134,8 +198,8 @@ Transactions** screen. Upload a CSV with these columns (see
 An upload **replaces** all transactions in the database with the file's
 contents, so use it for the first import, not to add to existing data.
 
-Then set up the rest in **Settings** (see below): your accounts and their
-types, category rules, and your salary and budgets.
+After the first import, check **Settings → Category Rules** and **Account** for
+any category or account in the file you haven't set up yet.
 
 ### Migrating from the old CSV/JSON files
 
