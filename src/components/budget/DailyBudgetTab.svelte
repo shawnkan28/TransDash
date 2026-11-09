@@ -7,6 +7,8 @@
   import { Save } from 'lucide-svelte';
   import TransactionTable from '../TransactionTable.svelte';
   import MonthlyExpenseChart from '../MonthlyExpenseChart.svelte';
+  import CategoryDailyAverageChart from '../CategoryDailyAverageChart.svelte';
+  import SearchableDropdown from '../SearchableDropdown.svelte';
 
   // ---- Daily Spendings ----
   let dailyBudgetInput = $state('');
@@ -42,6 +44,52 @@
       set.add(`${transaction.date.getFullYear()}`);
     });
     return ['All Years', ...Array.from(set).sort((a, b) => b.localeCompare(a))];
+  });
+
+  // ---- Category daily average ----
+  let categoryChartYear = $state(String(new Date().getFullYear()));
+  let averageCategory = $state('');
+  let averageNoteQuery = $state('');
+
+  // A note filter typed for one category rarely means anything in another.
+  $effect(() => {
+    averageCategory;
+    averageNoteQuery = '';
+  });
+
+  // Notes used in the picked category, offered as suggestions for the filter.
+  const averageCategoryNotes = $derived.by(() => {
+    const notes = new Set<string>();
+    financeStore.transactions.forEach((transaction) => {
+      if (transaction.category !== averageCategory) return;
+      if (transaction.transactionType !== 'Expense' || !transaction.affectCashFlow) return;
+      const note = transaction.note?.trim();
+      if (note) notes.add(note);
+    });
+    return Array.from(notes).sort((a, b) => a.localeCompare(b));
+  });
+
+  // Categories with cash-flow spending on this screen, biggest spend first.
+  const expenseCategories = $derived.by(() => {
+    const totals = new Map<string, number>();
+    financeStore.transactions.forEach((transaction) => {
+      if (transaction.transactionType !== 'Expense' || !transaction.affectCashFlow) return;
+      if (transaction.categoryGroup === TRAVEL_GROUP || !transaction.category) return;
+      totals.set(
+        transaction.category,
+        (totals.get(transaction.category) ?? 0) + transactionValueInSGD(transaction)
+      );
+    });
+    return Array.from(totals.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([category]) => category);
+  });
+
+  // Start on the biggest category, and fall back to it if the pick disappears.
+  $effect(() => {
+    if (!averageCategory || !expenseCategories.includes(averageCategory)) {
+      averageCategory = expenseCategories[0] ?? '';
+    }
   });
 
   function dayKey(date: Date): string {
@@ -205,6 +253,54 @@
         year={monthlyChartYear === 'All Years' ? null : monthlyChartYear}
         selectedKey={selectedMonthKey}
         onSelectMonth={(key) => (selectedMonthKey = key)}
+        excludeGroups={[TRAVEL_GROUP]}
+      />
+    </div>
+  </div>
+
+  <div class="rounded-[20px] border border-gray-100 bg-surface shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+    <div class="flex flex-col gap-3 border-b border-gray-50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-base font-bold text-gray-900">Category Spending: Daily Average &amp; Monthly Total</h2>
+        <p class="text-sm text-gray-500">The category's daily average and total spend for each month.</p>
+      </div>
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <SearchableDropdown
+          bind:value={averageCategory}
+          options={expenseCategories}
+          clearable={false}
+          placeholder="Search categories..."
+          class="sm:w-56"
+        />
+        <input
+          type="search"
+          bind:value={averageNoteQuery}
+          list="category-note-suggestions"
+          placeholder="Filter by note, e.g. Taxi"
+          aria-label="Filter category spending by note"
+          class="rounded-xl border border-gray-200 bg-surface px-3 py-2 text-sm text-gray-700 transition-colors focus:border-accent-300 focus:outline-none focus:ring-2 focus:ring-accent-100 sm:w-48"
+        />
+        <datalist id="category-note-suggestions">
+          {#each averageCategoryNotes as note (note)}
+            <option value={note}></option>
+          {/each}
+        </datalist>
+        <select
+          bind:value={categoryChartYear}
+          aria-label="Filter category daily average by year"
+          class="self-start rounded-xl border border-gray-200 bg-surface px-3 py-2 text-sm font-semibold text-gray-700 transition-colors focus:border-accent-300 focus:outline-none focus:ring-2 focus:ring-accent-100"
+        >
+          {#each monthlyYears as option (option)}
+            <option value={option}>{option}</option>
+          {/each}
+        </select>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <CategoryDailyAverageChart
+        category={averageCategory}
+        year={categoryChartYear === 'All Years' ? null : categoryChartYear}
+        noteQuery={averageNoteQuery}
         excludeGroups={[TRAVEL_GROUP]}
       />
     </div>
