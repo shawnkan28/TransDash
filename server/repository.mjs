@@ -273,6 +273,7 @@ export function readSettings() {
     quickAddPresets: db.all('SELECT * FROM quick_add_presets ORDER BY sort_order').map((p) => ({
       id: p.id, label: p.label, note: p.note, category: p.category, order: p.sort_order,
       ...(p.amount != null ? { amount: p.amount } : {}),
+      ...(p.account_name ? { accountName: p.account_name } : {}),
     })),
     scheduledTransactions: db.all('SELECT * FROM scheduled_transactions ORDER BY sort_order').map((s) => ({
       id: s.id, label: s.label, note: s.note, dayOfMonth: s.day_of_month, value: s.value,
@@ -323,8 +324,9 @@ export function writeSettings(settings) {
       (b) => [b.id, b.name ?? '', num(b.amount), num(b.poolPercent)]);
 
     replace('quick_add_presets', settings.quickAddPresets,
-      'INSERT OR REPLACE INTO quick_add_presets (id, label, note, category, sort_order, amount) VALUES (?,?,?,?,?,?)',
-      (p) => [p.id, p.label ?? '', p.note ?? '', p.category ?? '', num(p.order), optionalAmount(p.amount)]);
+      'INSERT OR REPLACE INTO quick_add_presets (id, label, note, category, sort_order, amount, account_name) VALUES (?,?,?,?,?,?,?)',
+      (p) => [p.id, p.label ?? '', p.note ?? '', p.category ?? '', num(p.order), optionalAmount(p.amount),
+              p.accountName?.trim() || null]);
 
     replace('scheduled_transactions', settings.scheduledTransactions,
       'INSERT OR REPLACE INTO scheduled_transactions VALUES (?,?,?,?,?,?,?,?,?,?,?)',

@@ -8,7 +8,7 @@ const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 
 
 export const DB_PATH = path.join(PROJECT_ROOT, 'data', 'transdash.sqlite');
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 /**
  * Transactions carry both `date` (ISO 8601, what we sort and filter on) and
@@ -91,8 +91,9 @@ CREATE TABLE IF NOT EXISTS quick_add_presets (
   label      TEXT    NOT NULL DEFAULT '',
   note       TEXT    NOT NULL DEFAULT '',
   category   TEXT    NOT NULL DEFAULT '',
-  sort_order INTEGER NOT NULL DEFAULT 0,
-  amount     REAL
+  sort_order   INTEGER NOT NULL DEFAULT 0,
+  amount       REAL,
+  account_name TEXT
 );
 
 CREATE TABLE IF NOT EXISTS scheduled_transactions (
@@ -141,6 +142,8 @@ export function openDatabase(dbPath = DB_PATH) {
   addColumnIfMissing(db, 'quick_add_presets', 'amount', 'REAL');
   // v3: budgets whose leftover absorbs overspend before savings does.
   addColumnIfMissing(db, 'monthly_budgets', 'covers_overspend', 'INTEGER NOT NULL DEFAULT 0');
+  // v4: optional default account on quick add buttons (NULL = none).
+  addColumnIfMissing(db, 'quick_add_presets', 'account_name', 'TEXT');
   db.run('INSERT OR REPLACE INTO app_meta (key, value) VALUES (?, ?)', [
     'schema_version',
     String(SCHEMA_VERSION),

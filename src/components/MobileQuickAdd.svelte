@@ -76,9 +76,12 @@
       : categoryOptions.includes(DEFAULT_CATEGORY)
         ? DEFAULT_CATEGORY
         : (categoryOptions[0] ?? '');
-    accountName = accountOptions.includes(DEFAULT_ACCOUNT)
-      ? DEFAULT_ACCOUNT
-      : (accountOptions[0] ?? '');
+    const presetAccount = preset?.accountName ?? '';
+    accountName = accountOptions.includes(presetAccount)
+      ? presetAccount
+      : accountOptions.includes(DEFAULT_ACCOUNT)
+        ? DEFAULT_ACCOUNT
+        : (accountOptions[0] ?? '');
     currencyCode = 'SGD';
     exchangeRateInput = '1';
     error = '';
@@ -218,7 +221,9 @@
             <div class="min-w-0">
               <p class="font-semibold text-gray-900">{preset.label}</p>
               <p class="truncate text-xs text-gray-500">
-                {preset.category}{preset.note ? ` · ${preset.note}` : ''}{preset.amount
+                {preset.category}{preset.note ? ` · ${preset.note}` : ''}{preset.accountName
+                  ? ` · ${preset.accountName}`
+                  : ''}{preset.amount
                   ? ` · $${preset.amount.toFixed(2)}`
                   : ''}
               </p>

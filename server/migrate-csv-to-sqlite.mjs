@@ -154,9 +154,9 @@ export function migrate({ verbose = true } = {}) {
       (b) => [b.id, b.name ?? '', num(b.amount), num(b.poolPercent)]);
 
     each(settings.quickAddPresets,
-      'INSERT OR REPLACE INTO quick_add_presets (id, label, note, category, sort_order, amount) VALUES (?,?,?,?,?,?)',
+      'INSERT OR REPLACE INTO quick_add_presets (id, label, note, category, sort_order, amount, account_name) VALUES (?,?,?,?,?,?,?)',
       (p) => [p.id, p.label ?? '', p.note ?? '', p.category ?? '', num(p.order),
-              Number(p.amount) > 0 ? Number(p.amount) : null]);
+              Number(p.amount) > 0 ? Number(p.amount) : null, p.accountName?.trim() || null]);
 
     each(settings.scheduledTransactions,
       'INSERT OR REPLACE INTO scheduled_transactions VALUES (?,?,?,?,?,?,?,?,?,?,?)',

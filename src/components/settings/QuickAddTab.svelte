@@ -8,6 +8,12 @@
 // Cross-tab options come from the saved store rather than another tab's
   // in-progress edits, which is also why each tab can now stand alone.
   const categoryLabels = $derived(financeStore.categories.map((category) => category.label));
+  const accountNames = $derived(
+    financeStore.accounts
+      .filter((account) => !account.disabled)
+      .map((account) => account.name)
+      .sort((a, b) => a.localeCompare(b))
+  );
 
   let quickAddPresets = $state<QuickAddPreset[]>(
     JSON.parse(JSON.stringify(financeStore.quickAddPresets))
@@ -53,6 +59,7 @@
         note: preset.note.trim(),
         category: preset.category.trim(),
         ...(preset.amount !== undefined ? { amount: preset.amount } : {}),
+        ...(preset.accountName?.trim() ? { accountName: preset.accountName.trim() } : {}),
         order: Number.isFinite(Number(preset.order)) ? Number(preset.order) : i,
       }))
       .filter((preset) => preset.label);
@@ -99,7 +106,7 @@
       <div>
         <h2 class="text-xl font-bold text-gray-900">Quick Add Buttons</h2>
         <p class="text-sm text-gray-500 mt-1">
-          Shortcut buttons shown on mobile. Each one opens Add Transaction pre-filled with its note, category and amount.
+          Shortcut buttons shown on mobile. Each one opens Add Transaction pre-filled with its note, category, account and amount.
         </p>
       </div>
       <div class="flex gap-3">
@@ -115,13 +122,14 @@
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse min-w-[760px]">
+      <table class="w-full text-left border-collapse min-w-[960px]">
         <thead>
           <tr class="bg-accent-50/50 text-gray-500 text-sm">
             <th class="px-6 py-4 font-semibold">Order</th>
             <th class="px-6 py-4 font-semibold">Button Label</th>
             <th class="px-6 py-4 font-semibold">Default Note</th>
             <th class="px-6 py-4 font-semibold">Default Category</th>
+            <th class="px-6 py-4 font-semibold">Default Account</th>
             <th class="px-6 py-4 font-semibold">Default Amount</th>
             <th class="px-6 py-4 font-semibold text-right">Actions</th>
           </tr>
@@ -167,6 +175,21 @@
                 </select>
               </td>
               <td class="px-6 py-3 align-top">
+                <!-- Blank keeps the sheet's usual default account. -->
+                <select
+                  bind:value={preset.accountName}
+                  class="w-full px-3 py-1.5 rounded-lg border border-accent-200 focus:outline-none focus:border-accent-400 focus:ring-1 focus:ring-accent-400 bg-surface"
+                >
+                  <option value={undefined}>— Default —</option>
+                  {#if preset.accountName && !accountNames.includes(preset.accountName)}
+                    <option value={preset.accountName}>{preset.accountName}</option>
+                  {/if}
+                  {#each accountNames as name (name)}
+                    <option value={name}>{name}</option>
+                  {/each}
+                </select>
+              </td>
+              <td class="px-6 py-3 align-top">
                 <input
                   type="number"
                   inputmode="decimal"
@@ -187,7 +210,7 @@
           {/each}
           {#if quickAddPresets.length === 0}
             <tr>
-              <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+              <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                 No quick add buttons configured. Add one to get started.
               </td>
             </tr>

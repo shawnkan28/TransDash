@@ -14,10 +14,7 @@ import { defaultCategories } from './defaultCategories';
 import { defaultMonthlyBudgets, defaultMonthlyBudgetPlan } from './defaultMonthlyBudgets';
 import { defaultQuickAddPresets } from './defaultQuickAddPresets';
 import { sortQuickAddPresets } from './quickAddPresets';
-import {
-  scheduledDueDate,
-  sortScheduledTransactions,
-} from './scheduledTransactions';
+import { sortScheduledTransactions } from './scheduledTransactions';
 import { isMobileViewport } from './viewport.svelte';
 import {
   normalizeCategoryMonthlyBudgets,
@@ -385,18 +382,14 @@ class FinanceStore {
   }
 
   /**
-   * Turns a configured schedule into a real transaction for the given month.
+   * Turns a configured schedule into a real transaction, dated when it is
+   * posted rather than on the schedule's day, since that is when it was paid.
    * Nothing posts on its own — this only runs when the due list is confirmed.
    */
-  async postScheduledTransaction(
-    scheduled: ScheduledTransaction,
-    reference: Date = new Date()
-  ): Promise<Transaction> {
-    const date = scheduledDueDate(scheduled, reference.getFullYear(), reference.getMonth());
-
+  async postScheduledTransaction(scheduled: ScheduledTransaction): Promise<Transaction> {
     return this.createTransaction({
       note: scheduled.note,
-      date,
+      date: new Date(),
       dateRaw: undefined,
       value: scheduled.value,
       currencyCode: scheduled.currencyCode || 'SGD',

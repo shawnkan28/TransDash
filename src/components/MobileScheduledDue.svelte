@@ -22,7 +22,7 @@
 
     posting = [...posting, id];
     try {
-      await financeStore.postScheduledTransaction(status.scheduled, status.dueDate);
+      await financeStore.postScheduledTransaction(status.scheduled);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to post scheduled transaction.');
     } finally {

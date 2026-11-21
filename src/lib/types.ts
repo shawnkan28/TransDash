@@ -117,6 +117,8 @@ export interface QuickAddPreset {
   category: string;
   /** Default amount filled into the Add Transaction sheet; unset leaves it blank. */
   amount?: number;
+  /** Default account filled into the Add Transaction sheet; unset uses the usual default. */
+  accountName?: string;
   /** Lower values sort first. */
   order?: number;
 }
